@@ -1,5 +1,5 @@
-import { Client, GatewayIntentBits } from "discord.js";
-import "dotenv/config";
+import { Client, GatewayIntentBits } from 'discord.js';
+import 'dotenv/config';
 
 const client = new Client({
   intents: [
@@ -9,15 +9,15 @@ const client = new Client({
   ],
 });
 
-client.on("ready", () => {
+client.on('ready', () => {
   console.log(`Bot logueado como ${client.user?.tag}`);
 });
 
-client.on("messageCreate", (msg) => {
+client.on('messageCreate', (msg) => {
   if (msg.author.bot) return;
 
-  if (msg.content === "!ping") {
-    msg.reply("Pong!");
+  if (msg.content === '!ping') {
+    msg.reply('Pong!');
   }
 });
 
