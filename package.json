@@ -13,13 +13,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/voice": "^0.18.0",
-    "@distube/soundcloud": "^2.0.4",
-    "@distube/spotify": "^2.0.2",
-    "@distube/yt-dlp": "^2.0.1",
     "discord.js": "^14.25.1",
-    "distube": "^5.0.7",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "kazagumo": "^3.4.0",
+    "lavaclient": "^5.0.0-rc.3"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.0",
