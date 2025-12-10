@@ -1,0 +1,30 @@
+services:
+  lavalink:
+    build:
+      context: .
+      dockerfile: Lavalink/dockerfile
+    container_name: lavalink_server
+    ports:
+      - '2333:2333'
+    volumes:
+      - ./Lavalink/application.yml:/app/application.yml:ro
+      - ./plugins:/app/plugins:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:2333/version || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  bot:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: egeon_bot
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      lavalink:
+        condition: service_healthy

@@ -1,0 +1,39 @@
+# Dependencias
+node_modules
+
+# Build outputs
+dist
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docker
+dockerfile
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Lavalink (se maneja por separado)
+Lavalink/
+
+# Otros
+README.md
+LICENSE
+*.md
+

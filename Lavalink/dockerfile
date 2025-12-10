@@ -1,0 +1,23 @@
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+# Copiar el JAR de Lavalink
+COPY Lavalink/Lavalink.jar ./Lavalink.jar
+
+# Copiar configuración
+COPY Lavalink/application.yml ./application.yml
+
+# Copiar plugins
+COPY plugins ./plugins
+
+# Usuario no-root para seguridad
+RUN addgroup -g 1001 lavalink && \
+    adduser -D -u 1001 -G lavalink lavalink && \
+    chown -R lavalink:lavalink /app
+
+USER lavalink
+
+EXPOSE 2333
+
+CMD ["java", "-Djdk.tls.client.protocols=TLSv1.2", "-jar", "Lavalink.jar"]
