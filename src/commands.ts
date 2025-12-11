@@ -11,7 +11,7 @@ export enum Command {
   HELP = 'help',
 }
 
-export const COMMANDS_ALIASES: Record<string, Command> = {
+export const COMMANDS_ALIASSES: Record<string, Command> = {
   hs: Command.HAND_SHAKE,
   p: Command.PLAY,
   sk: Command.SKIP,
@@ -22,6 +22,21 @@ export const COMMANDS_ALIASES: Record<string, Command> = {
   '?': Command.HELP,
   q: Command.QUEUE,
 } as const;
+
+const keys = Object.values(COMMANDS_ALIASSES);
+
+export const ALIASES_FOR_COMMANDS = keys.reduce(
+  (acc, key) => {
+    const aliasses = Object.entries(COMMANDS_ALIASSES)
+      .map(([alias, value]) => (value === key ? alias : null))
+      .filter((alias) => alias !== null);
+
+    acc[key] = aliasses;
+
+    return acc;
+  },
+  {} as Record<string, string[]>,
+);
 
 export const COMMANDS_DESCRIPTIONS: Record<Command, string> = {
   [Command.HAND_SHAKE]: 'Health check status of the bot.',
@@ -39,7 +54,7 @@ export function getIsCommand(message: Message) {
 }
 
 function normalizeCommand(command: string) {
-  const normalizedCommand = COMMANDS_ALIASES[command];
+  const normalizedCommand = COMMANDS_ALIASSES[command];
   return normalizedCommand || (command as Command);
 }
 
