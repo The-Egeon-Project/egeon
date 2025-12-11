@@ -73,7 +73,7 @@ kazagumo.shoukaku.on('disconnect', (name, count) => {
     kazagumo.destroyPlayer(player.guildId);
     player.destroy();
   });
-  console.warn(`Lavalink ${name}: Disconnected`);
+  console.warn(`Lavalink ${name}: Disconnected.`);
 });
 
 client.on('messageCreate', async (discordMessage: DiscordMessage) => {
