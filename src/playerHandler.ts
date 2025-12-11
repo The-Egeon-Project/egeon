@@ -58,8 +58,8 @@ export class PlayerHandler {
       return message.reply(MESSAGES.NO_PLAYER_FOUND);
     }
 
-    if (player.queue.length <= 1) {
-      return message.reply('There is no song to skip to!');
+    if (player.queue.length === 0) {
+      return message.reply('There is no song in the queue to skip to!');
     }
 
     player.skip();
