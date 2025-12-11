@@ -8,8 +8,8 @@ export enum Command {
   PAUSE = 'pause',
   RESUME = 'resume',
   DISCONNECT = 'disconnect',
-  // TODOD: Implement following commands
   QUEUE = 'queue',
+  // TODOD: Implement following commands
   HELP = 'help',
 }
 

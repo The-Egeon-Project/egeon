@@ -92,10 +92,26 @@ export class PlayerHandler {
 
   resume(message: Message) {
     const player = this.getPlayer(message);
+
     if (!player) {
       return message.reply(MESSAGES.NO_PLAYER_FOUND);
     }
     player.pause(false);
     return message.reply('Resumed!');
+  }
+
+  queue(message: Message) {
+    const player = this.getPlayer(message);
+
+    if (!player) {
+      return message.reply(MESSAGES.NO_PLAYER_FOUND);
+    }
+
+    const queue = player.queue;
+    const current = queue.current;
+
+    return message.reply(
+      `Current: ${current?.title}\nQueue:\n${queue.map((track, index) => `${index + 1}. ${track.title}.`).join('\n')}`,
+    );
   }
 }

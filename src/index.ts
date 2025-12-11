@@ -100,6 +100,8 @@ client.on('messageCreate', async (discordMessage: DiscordMessage) => {
       return playerHandler.pause(message);
     case Command.RESUME:
       return playerHandler.resume(message);
+    case Command.QUEUE:
+      return playerHandler.queue(message);
     default:
       return message.reply(MESSAGES.UNKNOWN_COMMAND);
   }
