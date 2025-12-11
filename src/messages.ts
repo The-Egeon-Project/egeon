@@ -1,10 +1,15 @@
 import { Message as DiscordMessage } from 'discord.js';
 
+import { COMMANDS_DESCRIPTIONS, Command } from './commands.js';
+
 // Dictionary of common messages.
 export const MESSAGES = {
   NO_PLAYER_FOUND: 'No player found!',
   UNKNOWN_COMMAND: 'Unknown command, please provide a valid command.',
   EMPTY_QUEUE: 'Queue is empty!',
+  VALID_COMMANDS: `Valid commands:\n ${Object.values(Command)
+    .map((command) => `!${command} - ${COMMANDS_DESCRIPTIONS[command]}`)
+    .join('\n')}`,
 };
 
 type NotNull<T> = {
