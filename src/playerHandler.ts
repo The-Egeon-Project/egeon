@@ -1,7 +1,6 @@
 import { Kazagumo, KazagumoPlayer } from 'kazagumo';
 
-import { Message } from './messages';
-import { MESSAGES } from './messages';
+import { MESSAGES, Message } from './messages.js';
 
 export class PlayerHandler {
   constructor(private readonly kazagumo: Kazagumo) {
