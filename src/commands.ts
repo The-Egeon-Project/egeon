@@ -1,4 +1,4 @@
-import { Message } from './messages';
+import { Message } from './messages.js';
 
 export enum Command {
   HAND_SHAKE = 'handshake',

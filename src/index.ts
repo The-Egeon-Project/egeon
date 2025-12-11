@@ -7,9 +7,9 @@ import dotenv from 'dotenv';
 import { Kazagumo } from 'kazagumo';
 import { Connectors, NodeOption } from 'shoukaku';
 
-import { Command, getCommand, getIsCommand } from './commands';
-import { MESSAGES, Message, getIsValidDiscordMessage } from './messages';
-import { PlayerHandler } from './playerHandler';
+import { Command, getCommand, getIsCommand } from './commands.js';
+import { MESSAGES, Message, getIsValidDiscordMessage } from './messages.js';
+import { PlayerHandler } from './playerHandler.js';
 
 // Load .env only if it exists (local development)
 dotenv.config();
@@ -73,7 +73,7 @@ kazagumo.shoukaku.on('disconnect', (name, count) => {
     kazagumo.destroyPlayer(player.guildId);
     player.destroy();
   });
-  console.warn(`Lavalink ${name}: Disconnected`);
+  console.warn(`Lavalink ${name}: Disconnected.`);
 });
 
 client.on('messageCreate', async (discordMessage: DiscordMessage) => {
