@@ -3,7 +3,8 @@ import { Message as DiscordMessage } from 'discord.js';
 // Dictionary of common messages.
 export const MESSAGES = {
   NO_PLAYER_FOUND: 'No player found!',
-  UNKNOWN_COMMAND: `Unknown command, please provide a valid command.`,
+  UNKNOWN_COMMAND: 'Unknown command, please provide a valid command.',
+  EMPTY_QUEUE: 'Queue is empty!',
 };
 
 type NotNull<T> = {

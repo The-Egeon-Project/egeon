@@ -1,6 +1,7 @@
 import { Kazagumo, KazagumoPlayer } from 'kazagumo';
 
 import { MESSAGES, Message } from './messages.js';
+import { getDuration } from './utils.js';
 
 export class PlayerHandler {
   constructor(private readonly kazagumo: Kazagumo) {
@@ -108,10 +109,19 @@ export class PlayerHandler {
     }
 
     const queue = player.queue;
+
+    if (queue.length === 0) {
+      return message.reply(MESSAGES.EMPTY_QUEUE);
+    }
+
     const current = queue.current;
+    const rawDuration = queue.durationLength;
+    const duration = getDuration(rawDuration);
 
     return message.reply(
-      `Current: ${current?.title}\nQueue:\n${queue.map((track, index) => `${index + 1}. ${track.title}.`).join('\n')}`,
+      `Current song: ${current?.title}\n` +
+        `Queue:\n${queue.map((track, index) => `${index + 1}. ${track.title}.`).join('\n')}\n` +
+        `Total songs: ${queue.length}, duration: ${duration}`,
     );
   }
 }
