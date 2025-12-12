@@ -1,4 +1,5 @@
 import { Kazagumo, KazagumoPlayer } from 'kazagumo';
+import _ from 'lodash';
 
 import { MESSAGES, Message } from './messages.js';
 import { getDuration } from './utils.js';
@@ -106,12 +107,17 @@ export class PlayerHandler {
     }
 
     const queue = player.queue;
+    const current = queue.current;
+
+    const currentPlayingMessage = `🎵 **Now playing:** ${current?.title}\n\n`;
 
     if (queue.length === 0) {
-      return message.reply(MESSAGES.EMPTY_QUEUE);
+      return message.reply(
+        (!_.isNil(currentPlayingMessage) ? currentPlayingMessage : '') +
+          MESSAGES.EMPTY_QUEUE,
+      );
     }
 
-    const current = queue.current;
     const rawDuration = queue.durationLength;
     const duration = getDuration(rawDuration);
 
