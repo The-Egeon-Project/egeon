@@ -29,18 +29,22 @@ export class PlayerHandler {
         voiceId: channel.id,
       });
     }
+    const queue = player.queue;
 
     const result = await this.kazagumo.search(query, {
       requester: message.author,
     });
     const track = result.tracks[0];
+    const isPlaylist = result.type === 'PLAYLIST';
     if (!track) return message.reply(MESSAGES.NO_TRACK_FOUND);
 
-    if (result.type === 'PLAYLIST')
-      player.queue.add(result.tracks); // do this instead of using for loop if you want queueUpdate not spammy
-    else player.queue.add(track);
+    queue.add(isPlaylist ? result.tracks : track);
 
     if (!player.playing && !player.paused) player.play();
+
+    if (_.isEmpty(queue)) {
+      return;
+    }
 
     return message.reply({
       content:
@@ -64,7 +68,7 @@ export class PlayerHandler {
     player.skip();
 
     return message.reply({
-      content: `⏭️ Skipping! Now playing **${player.queue[0]?.title}** by **${player.queue[0]?.author}** 🎶`,
+      content: `⏭️ Skipping!`,
     });
   }
 

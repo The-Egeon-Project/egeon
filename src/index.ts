@@ -10,6 +10,7 @@ import { Connectors, NodeOption } from 'shoukaku';
 import { Command, getCommand, getIsCommand } from './commands.js';
 import { MESSAGES, Message, getIsValidDiscordMessage } from './messages.js';
 import { PlayerHandler } from './playerHandler.js';
+import { getDuration } from './utils.js';
 
 // Load .env only if it exists (local development)
 dotenv.config();
@@ -74,6 +75,23 @@ kazagumo.shoukaku.on('disconnect', (name, count) => {
     player.destroy();
   });
   console.warn(`Lavalink ${name}: Disconnected.`);
+});
+
+// Now Playing event - fires when a new track starts
+kazagumo.on('playerStart', (player, track) => {
+  if (!player.textId) return;
+
+  const channel = client.channels.cache.get(player.textId);
+  if (channel?.isTextBased() && 'send' in channel) {
+    const duration = getDuration(track.length ?? 0);
+    channel.send({
+      content:
+        `🎶 **Now Playing:**\n` +
+        `╰─ 🎵 **${track.title}**\n` +
+        `╰─ 👤 *${track.author}*\n` +
+        `╰─ ⏱️ Duration: ${duration || 'Unknown'}`,
+    });
+  }
 });
 
 client.on('messageCreate', async (discordMessage: DiscordMessage) => {
