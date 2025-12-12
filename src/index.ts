@@ -2,6 +2,7 @@ import {
   Client,
   Message as DiscordMessage,
   GatewayIntentBits,
+  VoiceState,
 } from 'discord.js';
 import dotenv from 'dotenv';
 import { Kazagumo } from 'kazagumo';
@@ -75,6 +76,55 @@ kazagumo.shoukaku.on('disconnect', (name, count) => {
     player.destroy();
   });
   console.warn(`Lavalink ${name}: Disconnected.`);
+});
+
+// Track alone timeout - disconnect bot if alone in voice channel for 30 seconds
+const aloneTimeouts = new Map<string, NodeJS.Timeout>();
+
+client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
+  const guildId = oldState.guild.id || newState.guild.id;
+  const player = kazagumo.players.get(guildId);
+
+  if (!player || !player.voiceId) return;
+
+  const voiceChannel = client.channels.cache.get(player.voiceId);
+  if (!voiceChannel?.isVoiceBased()) return;
+
+  // Get members in the voice channel (excluding bots)
+  const members = voiceChannel.members.filter((member) => !member.user.bot);
+  const isBotAlone = members.size === 0;
+
+  if (isBotAlone) {
+    // Bot is alone, start 30 second timeout
+    if (!aloneTimeouts.has(guildId)) {
+      const timeout = setTimeout(() => {
+        const currentPlayer = kazagumo.players.get(guildId);
+        if (currentPlayer) {
+          const channel = client.channels.cache.get(currentPlayer.textId!);
+          if (channel?.isTextBased() && 'send' in channel) {
+            channel.send(
+              '👋 Me desconecté porque me quedé solo en el canal de voz.',
+            );
+          }
+          currentPlayer.destroy();
+        }
+        aloneTimeouts.delete(guildId);
+      }, 15000); // 15 seconds
+
+      aloneTimeouts.set(guildId, timeout);
+      console.log(`Bot alone, starting 15s disconnect timer.`);
+      console.log(`Guild ${guildId}: `);
+    }
+  } else {
+    // Someone joined, cancel the timeout if it exists
+    const existingTimeout = aloneTimeouts.get(guildId);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+      aloneTimeouts.delete(guildId);
+      console.log(`Someone joined, cancelled disconnect timer.`);
+      console.log(`Guild ${guildId}: `);
+    }
+  }
 });
 
 // Now Playing event - fires when a new track starts
