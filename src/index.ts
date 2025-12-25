@@ -19,6 +19,7 @@ dotenv.config();
 const { Guilds, GuildVoiceStates, GuildMessages, MessageContent } =
   GatewayIntentBits;
 
+const TIMEOUT = 15;
 // Determine if should use secure connection.
 const isSecure = process.env.LAVALINK_SECURE === 'true';
 
@@ -67,19 +68,28 @@ kazagumo.shoukaku.on('debug', (name, info) =>
   console.debug(`Lavalink ${name}: Debug,`, info),
 );
 
-kazagumo.shoukaku.on('disconnect', (name, count) => {
+kazagumo.shoukaku.on('disconnect', (name) => {
   const players = [...kazagumo.shoukaku.players.values()].filter(
     (p) => p.node.name === name,
   );
   players.map((player) => {
+    // Clean up idle timeouts when player is destroyed
+    const idleTimeout = idleTimeouts.get(player.guildId);
+    if (idleTimeout) {
+      clearTimeout(idleTimeout);
+      idleTimeouts.delete(player.guildId);
+    }
     kazagumo.destroyPlayer(player.guildId);
     player.destroy();
   });
   console.warn(`Lavalink ${name}: Disconnected.`);
 });
 
-// Track alone timeout - disconnect bot if alone in voice channel for 30 seconds
+// Track alone timeout - disconnect bot if alone in voice channel for TIMEOUT seconds
 const aloneTimeouts = new Map<string, NodeJS.Timeout>();
+
+// Track idle timeout - disconnect bot if queue is empty for TIMEOUT seconds
+const idleTimeouts = new Map<string, NodeJS.Timeout>();
 
 client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
   const guildId = oldState.guild.id || newState.guild.id;
@@ -95,7 +105,7 @@ client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
   const isBotAlone = members.size === 0;
 
   if (isBotAlone) {
-    // Bot is alone, start 30 second timeout
+    // Bot is alone, start TIMEOUT second timeout
     if (!aloneTimeouts.has(guildId)) {
       const timeout = setTimeout(() => {
         const currentPlayer = kazagumo.players.get(guildId);
@@ -103,16 +113,16 @@ client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
           const channel = client.channels.cache.get(currentPlayer.textId!);
           if (channel?.isTextBased() && 'send' in channel) {
             channel.send(
-              '👋 Me desconecté porque me quedé solo en el canal de voz.',
+              '👋 I disconnected because I was alone in the voice channel.',
             );
           }
           currentPlayer.destroy();
         }
         aloneTimeouts.delete(guildId);
-      }, 15000); // 15 seconds
+      }, TIMEOUT * 1000);
 
       aloneTimeouts.set(guildId, timeout);
-      console.log(`Bot alone, starting 15s disconnect timer.`);
+      console.log(`Bot alone, starting ${TIMEOUT}s disconnect timer.`);
       console.log(`Guild ${guildId}: `);
     }
   } else {
@@ -129,6 +139,16 @@ client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
 
 // Now Playing event - fires when a new track starts
 kazagumo.on('playerStart', (player, track) => {
+  // Cancel idle timeout if a new track starts
+  const existingIdleTimeout = idleTimeouts.get(player.guildId);
+  if (existingIdleTimeout) {
+    clearTimeout(existingIdleTimeout);
+    idleTimeouts.delete(player.guildId);
+    console.log(
+      `Guild ${player.guildId}: New track started, cancelled idle disconnect timer.`,
+    );
+  }
+
   if (!player.textId) return;
 
   const channel = client.channels.cache.get(player.textId);
@@ -141,6 +161,34 @@ kazagumo.on('playerStart', (player, track) => {
         `╰─ 👤 *${track.author}*\n` +
         `╰─ ⏱️ Duration: ${duration || 'Unknown'}`,
     });
+  }
+});
+
+// Player End event - fires when a track ends
+kazagumo.on('playerEnd', (player) => {
+  // Check if queue is empty
+  if (player.queue.length === 0) {
+    // Start 30 second timeout to disconnect
+    if (!idleTimeouts.has(player.guildId)) {
+      const timeout = setTimeout(() => {
+        const currentPlayer = kazagumo.players.get(player.guildId);
+        if (currentPlayer) {
+          const channel = client.channels.cache.get(currentPlayer.textId!);
+          if (channel?.isTextBased() && 'send' in channel) {
+            channel.send(
+              '👋 I disconnected because the queue was empty for too long.',
+            );
+          }
+          currentPlayer.destroy();
+        }
+        idleTimeouts.delete(player.guildId);
+      }, TIMEOUT * 1000);
+
+      idleTimeouts.set(player.guildId, timeout);
+      console.log(
+        `Guild ${player.guildId}: Queue empty, starting ${TIMEOUT}s idle disconnect timer.`,
+      );
+    }
   }
 });
 
